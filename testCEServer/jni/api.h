@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <sys/queue.h>
+#include <vector>
 #include "porthelp.h"
 #include "context.h"
-#include "../testKo/MemoryReaderWriter37.h"
 /*
 
 #if defined(__arm__) || defined(__ANDROID__)
@@ -28,16 +28,14 @@
 #define VQE_NOSHARED 4
 
 
-struct ModuleListEntry
-{
+struct ModuleListEntry {
 	unsigned long long baseAddress;
 	int moduleSize;
 	std::string moduleName;
 
 };
 
-struct ProcessListEntry
-{
+struct ProcessListEntry {
 	int PID;
 	std::string ProcessName;
 
@@ -60,33 +58,24 @@ struct MyProcessInfo {
 	std::string cmdline;
 };
 
-struct CeProcessList
-{
-	std::vector<MyProcessInfo> vProcessList;
+struct CeProcessList {
+	std::vector<struct MyProcessInfo> vProcessList;
 	decltype(vProcessList)::iterator readIter;
 };
 
-struct CeModuleList
-{
+struct CeModuleList {
 	std::vector<ModuleListEntry> vModuleList;
 	decltype(vModuleList)::iterator readIter;
 };
 
-struct CeOpenProcess
-{
+struct CeOpenProcess {
 	int pid;
 	uint64_t u64DriverProcessHandle;
-
-	//短时间内保留上次获取的内存Maps，避免频繁调用驱动获取
-	std::mutex mtxLockLastMaps; //访问冲突锁
-	std::vector<DRIVER_REGION_INFO> vLastMaps;
-	std::atomic<uint64_t> nLastGetMapsTime;
 };
 
-class CApi
-{
+class CApi {
 public:
-	static BOOL InitReadWriteDriver(const char* lpszDevFileName);
+	static BOOL InitReadWriteDriver(const char* lpszDevFileName, BOOL bUseBypassSELinuxMode);
 	static HANDLE CreateToolhelp32Snapshot(DWORD dwFlags, DWORD th32ProcessID);
 	static BOOL Process32First(HANDLE hSnapshot, ProcessListEntry & processentry);
 	static BOOL Process32Next(HANDLE hSnapshot, ProcessListEntry &processentry);
